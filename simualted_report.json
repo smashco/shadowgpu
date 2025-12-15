@@ -1,0 +1,36 @@
+[
+  {
+    "severity": "CRITICAL",
+    "title": "Unused AWS p3.2xlarge",
+    "description": "This GPU-1111-FAKE-UUID had 2.4% utilization. You are paying $3.06/hr for empty air.",
+    "action": "Terminate instance immediately.",
+    "savings": "$2234/mo",
+    "target": {
+      "pod_name": "jupyter-notebook-0",
+      "namespace": "dev-team",
+      "cloud": {
+        "provider": "AWS",
+        "instance": "p3.2xlarge",
+        "gpu": "NVIDIA V100",
+        "cost_hourly": 3.06
+      }
+    }
+  },
+  {
+    "severity": "WARNING",
+    "title": "Inefficient Scaling on GCP",
+    "description": "Utilization is low (27.4%) but not zero.",
+    "action": "Downscale to a cheaper instance (e.g. T4) to save 50%.",
+    "savings": "50% Savings",
+    "target": {
+      "pod_name": "bert-inference-v1-deployment-778899",
+      "namespace": "prod",
+      "cloud": {
+        "provider": "GCP",
+        "instance": "a2-highgpu-1g",
+        "gpu": "NVIDIA A100",
+        "cost_hourly": 3.67
+      }
+    }
+  }
+]

@@ -1,0 +1,87 @@
+[
+  {
+    "severity": "CRITICAL",
+    "title": "Unused AWS p3.2xlarge",
+    "description": "This GPU-5BT43JV3B had 3.6% utilization. You are paying $3.06/hr for empty air.",
+    "action": "Terminate instance immediately.",
+    "savings": "$2234/mo",
+    "target": {
+      "pod_name": "jupyter-notebook-0",
+      "namespace": "dev-team",
+      "cloud": {
+        "provider": "AWS",
+        "instance": "p3.2xlarge",
+        "gpu": "NVIDIA V100",
+        "cost_hourly": 3.06
+      }
+    }
+  },
+  {
+    "severity": "CRITICAL",
+    "title": "Unused AWS p3.2xlarge",
+    "description": "This GPU-ONJX019PC had 4.0% utilization. You are paying $3.06/hr for empty air.",
+    "action": "Terminate instance immediately.",
+    "savings": "$2234/mo",
+    "target": {
+      "pod_name": "jupyter-notebook-1",
+      "namespace": "dev-team",
+      "cloud": {
+        "provider": "AWS",
+        "instance": "p3.2xlarge",
+        "gpu": "NVIDIA V100",
+        "cost_hourly": 3.06
+      }
+    }
+  },
+  {
+    "severity": "CRITICAL",
+    "title": "Unused AWS p4d.24xlarge",
+    "description": "This GPU-ZKWQZSF74 had 0.1% utilization. You are paying $32.77/hr for empty air.",
+    "action": "Terminate instance immediately.",
+    "savings": "$23922/mo",
+    "target": {
+      "pod_name": "jupyter-notebook-2",
+      "namespace": "dev-team",
+      "cloud": {
+        "provider": "AWS",
+        "instance": "p4d.24xlarge",
+        "gpu": "NVIDIA A100",
+        "cost_hourly": 32.77
+      }
+    }
+  },
+  {
+    "severity": "CRITICAL",
+    "title": "Unused AWS g4dn.xlarge",
+    "description": "This GPU-3KJ4T9RYV had 2.5% utilization. You are paying $0.526/hr for empty air.",
+    "action": "Terminate instance immediately.",
+    "savings": "$384/mo",
+    "target": {
+      "pod_name": "jupyter-notebook-3",
+      "namespace": "dev-team",
+      "cloud": {
+        "provider": "AWS",
+        "instance": "g4dn.xlarge",
+        "gpu": "NVIDIA T4",
+        "cost_hourly": 0.526
+      }
+    }
+  },
+  {
+    "severity": "CRITICAL",
+    "title": "Unused AWS p3.2xlarge",
+    "description": "This GPU-RH4B2XM6Y had 4.5% utilization. You are paying $3.06/hr for empty air.",
+    "action": "Terminate instance immediately.",
+    "savings": "$2234/mo",
+    "target": {
+      "pod_name": "jupyter-notebook-4",
+      "namespace": "dev-team",
+      "cloud": {
+        "provider": "AWS",
+        "instance": "p3.2xlarge",
+        "gpu": "NVIDIA V100",
+        "cost_hourly": 3.06
+      }
+    }
+  }
+]

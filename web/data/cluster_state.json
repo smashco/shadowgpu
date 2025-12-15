@@ -1,0 +1,80 @@
+{
+  "colab-extreme-4016": {
+    "node_id": "colab-extreme-4016",
+    "gpu_util": 98.07627553700763,
+    "memory_util": 1.775414974267248,
+    "gpu_name": "Tesla T4",
+    "timestamp": 1765525066.1535165,
+    "severity": "OPTIMIZED",
+    "title": "Active Node: colab-extreme-4016",
+    "description": "Node is healthy running at 98.1% utilization.",
+    "action": "None",
+    "savings": "$0/mo",
+    "last_seen": 1765525066313
+  },
+  "colab-medium-9053": {
+    "node_id": "colab-medium-9053",
+    "gpu_util": 52.421096196052716,
+    "memory_util": 0.5564733501434658,
+    "gpu_name": "Tesla T4",
+    "timestamp": 1765525066.3610392,
+    "severity": "OPTIMIZED",
+    "title": "Active Node: colab-medium-9053",
+    "description": "Node is healthy running at 52.4% utilization.",
+    "action": "None",
+    "savings": "$0/mo",
+    "last_seen": 1765525067103
+  },
+  "colab-low-3856": {
+    "node_id": "colab-low-3856",
+    "gpu_util": 12.643354375679616,
+    "memory_util": 0.2649873095921266,
+    "gpu_name": "Tesla T4",
+    "timestamp": 1765525068.7991476,
+    "severity": "WARNING",
+    "title": "Underutilized Node: colab-low-3856",
+    "description": "Low utilization (12.6%). Oversized for workload.",
+    "action": "Downsize to T4/Spot",
+    "savings": "$176/mo",
+    "last_seen": 1765525069762
+  },
+  "colab-idle-9424": {
+    "node_id": "colab-idle-9424",
+    "gpu_util": 0,
+    "memory_util": 0,
+    "gpu_name": "Tesla T4",
+    "timestamp": 1765525068.4686823,
+    "severity": "CRITICAL",
+    "title": "Idle Node Detected: colab-idle-9424",
+    "description": "GPU is completely idle. Immediate shutdown recommended.",
+    "action": "Stop Instance",
+    "savings": "$252/mo",
+    "last_seen": 1765525069483
+  },
+  "colab-low-6783": {
+    "node_id": "colab-low-6783",
+    "gpu_util": 10.68942158605197,
+    "memory_util": 0.2649873095921266,
+    "gpu_name": "Tesla T4",
+    "timestamp": 1765525066.2332141,
+    "severity": "WARNING",
+    "title": "Underutilized Node: colab-low-6783",
+    "description": "Low utilization (10.7%). Oversized for workload.",
+    "action": "Downsize to T4/Spot",
+    "savings": "$176/mo",
+    "last_seen": 1765525066955
+  },
+  "colab-extreme-7646": {
+    "node_id": "colab-extreme-7646",
+    "gpu_util": 99.0318326576044,
+    "memory_util": 1.775414974267248,
+    "gpu_name": "Tesla T4",
+    "timestamp": 1765804008.207529,
+    "severity": "OPTIMIZED",
+    "title": "Active Node: colab-extreme-7646",
+    "description": "Node is healthy running at 99.0% utilization.",
+    "action": "None",
+    "savings": "$0/mo",
+    "last_seen": 1765804008878
+  }
+}

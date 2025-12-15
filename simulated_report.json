@@ -1,0 +1,24 @@
+[
+  {
+    "severity": "CRITICAL",
+    "title": "Unused GPU detected (GPU-1111-FAKE-UUID)",
+    "description": "This GPU had 2.6% average utilization over 48h.",
+    "action": "Turn it off or switch to a cheaper instance.",
+    "savings": "$800/month",
+    "target": {
+      "pod_name": "jupyter-notebook-0",
+      "namespace": "dev-team"
+    }
+  },
+  {
+    "severity": "WARNING",
+    "title": "Low Efficiency detected (GPU-2222-FAKE-UUID)",
+    "description": "Utilization is low (27.9%) but not zero. You are paying for compute you don't use.",
+    "action": "Increase batch size or use a smaller GPU.",
+    "savings": "2x Throughput",
+    "target": {
+      "pod_name": "bert-inference-v1-deployment-778899",
+      "namespace": "prod"
+    }
+  }
+]
