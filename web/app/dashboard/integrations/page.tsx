@@ -298,7 +298,16 @@ export default function IntegrationsPage() {
                     {['AWS', 'GCP', 'Azure', 'Colab'].map((p) => (
                         <button
                             key={p}
-                            onClick={() => { setProvider(p); setResults([]); setKeys({}); setError(''); }}
+                            onClick={() => {
+                                setProvider(p);
+                                setResults([]);
+                                setError('');
+                                // Reset inputs
+                                setAccessKey('');
+                                setSecretKey('');
+                                setGcpJson('');
+                                setAzureCreds({ tenantId: '', clientId: '', clientSecret: '', subId: '' });
+                            }}
                             className={`p-4 rounded-xl border transition-all flex items-center gap-3 ${provider === p ? 'bg-slate-900 border-emerald-500 ring-1 ring-emerald-500' : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'}`}
                         >
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${provider === p ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-slate-800 border-slate-700'}`}>
