@@ -46,8 +46,17 @@ export default function IntegrationsPage() {
                 if (account.provider === 'GCP') endpoint = '/api/integrations/gcp/scan';
                 if (account.provider === 'Azure') endpoint = '/api/integrations/azure/scan';
 
-                // For Colab, we don't scan via API, it's agent based. But we can simulate if needed.
-                if (account.provider === 'Colab') return;
+                // For Colab, we don't scan via API, it's agent based.
+                // We return a "Monitoring" status to show it's active in the results.
+                if (account.provider === 'Colab') {
+                    allResults.push({
+                        title: `Colab Agent: ${account.name || 'Active'}`,
+                        description: "Listening for incoming telemetry from runtime...",
+                        savings: "Monitoring",
+                        target: { cloud: { instanceId: account.name || 'colab-runtime' } }
+                    });
+                    return;
+                }
 
                 const res = await fetch(endpoint, {
                     method: 'POST',
@@ -93,6 +102,7 @@ export default function IntegrationsPage() {
         const newAccount = {
             id: Math.random().toString(36).substr(2, 9),
             provider,
+            name: sessionName || `${provider} Account`,
             connectedAt: new Date(),
             credentials: {
                 accessKeyId: accessKey,
@@ -357,7 +367,7 @@ export default function IntegrationsPage() {
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
                                     <div>
                                         <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                                            {account.provider} Account Connected
+                                            {account.name} Connected
                                             <CheckCircle className="w-3 h-3 text-emerald-500" />
                                         </h3>
                                         <p className="text-xs text-slate-500 font-mono mt-0.5">
