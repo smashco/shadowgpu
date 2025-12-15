@@ -90,11 +90,20 @@ export default function DashboardView() {
 
     // Chart Data
     const chartData = {
-        labels: data.map(d => d.node_id ? d.node_id.replace('colab-', '') : d.target?.pod_name || 'Node'),
+        // Clean up node IDs: Remove random suffixes for cleaner display
+        labels: data.map(d => {
+            const id = d.node_id || d.target?.pod_name || 'Node';
+            // Split by '-' and remove the last part if it's a random number (usually it is for Colab agents)
+            const parts = id.split('-');
+            if (parts.length > 2 && !isNaN(parseInt(parts[parts.length - 1]))) {
+                parts.pop(); // Remove random suffix
+            }
+            return parts.join('-').replace('colab-', '');
+        }),
         datasets: [
             {
                 label: 'GPU Utilization (%)',
-                data: data.map(d => d.gpu_util || Math.random() * 100), // Fallback if no util
+                data: data.map(d => d.gpu_util || 0),
                 backgroundColor: data.map(d => {
                     const util = d.gpu_util || 0;
                     if (util < 20) return 'rgba(239, 68, 68, 0.8)'; // Red (Waste)
