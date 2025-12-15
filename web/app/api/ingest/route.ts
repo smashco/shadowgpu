@@ -127,7 +127,7 @@ export async function GET() {
   try {
     const state = readState();
     const now = Date.now();
-    const timeout = 60 * 1000; // 1 minute timeout
+    const timeout = 60 * 60 * 1000; // 60 minute timeout (keep data longer for demo)
 
     // Convert map to array and filter out old nodes
     const activeNodes = Object.values(state).filter((node: any) => {
