@@ -173,7 +173,7 @@ export default function IntegrationsPage() {
                                             <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Copy & Run in Notebook</span>
                                         </div>
                                         <code className="block text-[10px] font-mono text-emerald-300 break-all bg-black/50 p-2 rounded border border-slate-800">
-                                            !curl -s https://mudyn-2409-4090-20-7804-982b-ddcb-734e-957c.a.free.pinggy.link/agent | python3
+                                            !curl -s {typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent | python3
                                         </code>
                                     </div>
                                     <p className="text-xs text-slate-500 text-center">
