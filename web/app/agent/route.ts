@@ -14,7 +14,8 @@ export async function GET(req: Request) {
     // The Python Agent Script
     const script = `# @title 🚀 Shadow GPU - Critical Load Test Agent
 # @markdown Select the Load Profile for this Colab Instance:
-LOAD_PROFILE = "EXTREME" # @param ["EXTREME", "MEDIUM", "LOW", "IDLE"]
+# @markdown Select the Load Profile for this Colab Instance:
+LOAD_PROFILE = "REAL_MONITOR" # @param ["REAL_MONITOR", "EXTREME", "MEDIUM", "LOW", "IDLE"]
 # @markdown Dynamic Server URL injected by Agent Endoint:
 SERVER_URL = "${serverUrl}"
 # @markdown Session Name:
@@ -27,6 +28,7 @@ import threading
 import json
 import random
 import os
+import subprocess
 import sys
 
 # --- Load Simulation Logic ---
@@ -68,15 +70,31 @@ def low_load():
 
 def idle_load():
     print("💤 IDLE STATE (Monitoring Only)")
-    # Do nothing, just keep process alive
+    while True:
+        time.sleep(10)
+
+def real_monitor():
+    print("🕵️ REAL MONITOR MODE: Watching system metrics...")
+    # No artificial load, just keeps thread alive
     while True:
         time.sleep(10)
 
 # --- Agent Logic ---
+def get_real_gpu_util():
+    try:
+        # Use nvidia-smi to get actual percentage
+        result = subprocess.check_output(
+            ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'], 
+            encoding='utf-8'
+        )
+        return float(result.strip())
+    except Exception:
+        return 0.0
+
 def run_agent():
     print(f"📡 Shadow Agent connecting to {SERVER_URL}...")
     # Unique ID per run
-    node_id = f"{SESSION_NAME}-{LOAD_PROFILE.lower()}-{random.randint(1000,9999)}"
+    node_id = f"{SESSION_NAME}-{LOAD_PROFILE.lower().replace('_','-')}-{random.randint(1000,9999)}"
     
     while True:
         try:
@@ -87,9 +105,11 @@ def run_agent():
 
             if torch.cuda.is_available():
                 gpu_name = torch.cuda.get_device_name(0)
-                # For Colab, we simulate the "reported" util based on our load profile 
-                # because standard torch calls don't give global GPU % easily without pynvml
-                if LOAD_PROFILE == "EXTREME": gpu_util = random.uniform(98, 100)
+                
+                if LOAD_PROFILE == "REAL_MONITOR":
+                    gpu_util = get_real_gpu_util()
+                # For simulated profiles, we fake it to match expectation
+                elif LOAD_PROFILE == "EXTREME": gpu_util = random.uniform(98, 100)
                 elif LOAD_PROFILE == "MEDIUM": gpu_util = random.uniform(45, 55)
                 elif LOAD_PROFILE == "LOW": gpu_util = random.uniform(5, 15)
                 else: gpu_util = 0
@@ -122,23 +142,22 @@ if __name__ == "__main__":
     if not torch.cuda.is_available():
         print("❌ NO GPU DETECTED! Runtime -> Change runtime type -> T4 GPU")
     else:
-        # Start Load in Background
+        # Start Selected Load Profile
         if LOAD_PROFILE == "EXTREME":
             t = threading.Thread(target=extreme_load)
-            t.daemon = True
-            t.start()
+            t.daemon = True; t.start()
         elif LOAD_PROFILE == "MEDIUM":
             t = threading.Thread(target=medium_load)
-            t.daemon = True
-            t.start()
+            t.daemon = True; t.start()
         elif LOAD_PROFILE == "LOW":
             t = threading.Thread(target=low_load)
-            t.daemon = True
-            t.start()
+            t.daemon = True; t.start()
         elif LOAD_PROFILE == "IDLE":
             t = threading.Thread(target=idle_load)
-            t.daemon = True
-            t.start()
+            t.daemon = True; t.start()
+        elif LOAD_PROFILE == "REAL_MONITOR":
+            # No load, just monitor
+            pass
             
         # Run Agent
         run_agent()
