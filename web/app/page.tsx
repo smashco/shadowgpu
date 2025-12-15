@@ -10,7 +10,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <img src="/logo.jpg" alt="Twocorex" className="h-10 w-auto object-contain" />
+              <img src="/logo.png" alt="Twocorex" className="h-10 w-auto object-contain filter invert mix-blend-screen" />
             </div>
           </div>
           <div className="flex items-center gap-6">
