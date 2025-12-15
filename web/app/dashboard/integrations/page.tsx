@@ -112,20 +112,45 @@ export default function IntegrationsPage() {
             }
         };
 
-        setConnectedAccounts(prev => [...prev, newAccount]);
+        const updatedAccounts = [...connectedAccounts, newAccount];
+        setConnectedAccounts(updatedAccounts);
+
+        // Persist for Dashboard access
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('shadow_connected_accounts', JSON.stringify(updatedAccounts));
+        }
 
         // Reset inputs
         setAccessKey('');
         setSecretKey('');
         setGcpJson('');
         setAzureCreds({ tenantId: '', clientId: '', clientSecret: '', subId: '' });
+        setSessionName('');
 
         setLoading(false);
     };
 
+    // Load from storage on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const saved = sessionStorage.getItem('shadow_connected_accounts');
+            if (saved) {
+                try {
+                    setConnectedAccounts(JSON.parse(saved));
+                } catch (e) {
+                    console.error("Failed to parse saved accounts");
+                }
+            }
+        }
+    }, []);
+
     // Remove account handler
     const disconnectAccount = (id: string) => {
-        setConnectedAccounts(prev => prev.filter(a => a.id !== id));
+        const updated = connectedAccounts.filter(a => a.id !== id);
+        setConnectedAccounts(updated);
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('shadow_connected_accounts', JSON.stringify(updated));
+        }
         setResults([]);
     };
 

@@ -46,7 +46,18 @@ interface Recommendation {
 export default function DashboardView() {
     const [data, setData] = useState<Recommendation[]>([]);
     const [loading, setLoading] = useState(true);
+    const [connectedAccounts, setConnectedAccounts] = useState<any[]>([]);
     const chartRef = useRef<any>(null);
+
+    // Load connections
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const saved = sessionStorage.getItem('shadow_connected_accounts');
+            if (saved) {
+                try { setConnectedAccounts(JSON.parse(saved)); } catch (e) { }
+            }
+        }
+    }, []);
 
     const fetchData = async () => {
         setLoading(true);
@@ -260,52 +271,94 @@ export default function DashboardView() {
                     <p className="text-slate-400">Real-time optimization feedback from Shadow Agent.</p>
                 </div>
 
-                {/* Dynamic Demo Controls */}
+                {/* Dynamic Audit Controls */}
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 mb-8">
                     <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        Live Simulation Generator
+                        Active Audit Session
                     </h2>
                     <div className="flex flex-wrap items-end gap-4">
-                        <div className="flex-1 min-w-[200px]">
-                            <label className="text-xs text-slate-500 font-mono mb-1 block">CLOUD PROVIDER</label>
-                            <select id="provider" className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-sm focus:ring-1 focus:ring-emerald-500 outline-none">
-                                <option value="AWS">AWS</option>
-                                <option value="GCP">GCP</option>
-                                <option value="Azure">Azure</option>
-                                <option value="Mixed">Hybrid (Mixed)</option>
+                        <div className="flex-1 min-w-[300px]">
+                            <label className="text-xs text-slate-500 font-mono mb-1 block">TARGET SCOPE</label>
+                            <select
+                                id="auditScope"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-sm focus:ring-1 focus:ring-emerald-500 outline-none"
+                            >
+                                <option value="ALL">All Connected Resources ({connectedAccounts.length})</option>
+                                {connectedAccounts.map((acc: any) => (
+                                    <option key={acc.id} value={acc.id}>{acc.name} ({acc.provider})</option>
+                                ))}
                             </select>
                         </div>
-                        <div className="flex-1 min-w-[200px]">
-                            <label className="text-xs text-slate-500 font-mono mb-1 block">SCENARIO</label>
-                            <select id="scenario" className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-sm focus:ring-1 focus:ring-emerald-500 outline-none">
-                                <option value="idle">Scenario A: The "Lazy" Cluster (Idle)</option>
-                                <option value="inefficient">Scenario B: Over-Provisioned (Low Util)</option>
-                                <option value="optimized">Scenario C: Optimized (Clean)</option>
-                            </select>
-                        </div>
-                        <div className="w-24">
-                            <label className="text-xs text-slate-500 font-mono mb-1 block">NODES</label>
-                            <input id="count" type="number" defaultValue="5" className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 text-sm focus:ring-1 focus:ring-emerald-500 outline-none" />
-                        </div>
+
                         <button
                             onClick={async () => {
                                 setLoading(true);
-                                const provider = (document.getElementById('provider') as HTMLSelectElement).value;
-                                const scenario = (document.getElementById('scenario') as HTMLSelectElement).value;
-                                const nodeCount = parseInt((document.getElementById('count') as HTMLInputElement).value);
+                                const scope = (document.getElementById('auditScope') as HTMLSelectElement).value;
 
-                                await fetch('/api/simulate', {
-                                    method: 'POST',
-                                    body: JSON.stringify({ provider, scenario, nodeCount })
+                                // 1. Refresh Agent Data (Colab)
+                                await fetchData();
+
+                                // 2. Trigger Real Scans
+                                let accountsToScan = connectedAccounts;
+                                if (scope !== 'ALL') {
+                                    accountsToScan = connectedAccounts.filter((a: any) => a.id === scope);
+                                }
+
+                                // Scan logic (mirrored from Integrations Page)
+                                const scanResults: any[] = [];
+                                await Promise.all(accountsToScan.map(async (account: any) => {
+                                    // Skip Colab for API scans (it's passive)
+                                    if (account.provider === 'Colab') return;
+
+                                    try {
+                                        const endpoint = account.provider === 'GCP' ? '/api/integrations/gcp/scan' :
+                                            account.provider === 'Azure' ? '/api/integrations/azure/scan' :
+                                                '/api/integrations/aws/scan';
+
+                                        const payload = {
+                                            ...account.credentials,
+                                            provider: account.provider,
+                                            region: account.credentials.region || 'us-east-1'
+                                        };
+
+                                        const res = await fetch(endpoint, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(payload)
+                                        });
+                                        const json = await res.json();
+                                        if (Array.isArray(json)) {
+                                            scanResults.push(...json);
+                                        }
+                                    } catch (e) {
+                                        console.error(`Scan failed for ${account.name}`, e);
+                                    }
+                                }));
+
+                                // Merge Real Scan Results with Agent Data
+                                // We keep existing 'agent' data (from fetchData) and append new scan results
+                                setData(prev => {
+                                    // Filter out previous API scan results to avoid dupes? 
+                                    // Simpler: Just append for now, or replace. 
+                                    // A robust app would key them by ID.
+                                    // Let's assume prev contains Agent data. 
+                                    // We mix them:
+                                    return [...prev, ...scanResults.map(r => ({ ...r, node_id: r.target?.cloud?.instanceId || r.title }))];
                                 });
-                                await fetchData(); // Reload stats
+
+                                setLoading(false);
                             }}
-                            className="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-6 py-2 rounded-lg transition-colors flex items-center gap-2 h-[38px]"
+                            className="bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-8 py-2 rounded-lg transition-colors flex items-center gap-2 h-[38px] shadow-lg shadow-emerald-500/20"
                         >
-                            <RefreshCcw className="w-4 h-4" /> Run Sim
+                            <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Run Audit
                         </button>
                     </div>
+                    {connectedAccounts.length === 0 && (
+                        <div className="mt-3 text-xs text-amber-500 flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> No accounts connected. Go to "Connect Cloud" to add providers.
+                        </div>
+                    )}
                 </div>
 
                 {/* Stats Grid */}
