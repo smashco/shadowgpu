@@ -8,10 +8,10 @@ export default function LandingPage() {
       <nav className="border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <span className="font-bold text-slate-900">T</span>
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <img src="/logo.jpg" alt="Twocorex" className="h-10 w-auto object-contain" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-white">Twocorex</span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="#pricing" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Pricing</Link>

@@ -209,11 +209,8 @@ export default function DashboardView() {
             {/* Navbar */}
             <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-10">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                            <Activity className="w-5 h-5 text-slate-900" />
-                        </div>
-                        <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">SHADOW<span className="font-light">GPU</span></span>
+                    <div className="flex items-center gap-3">
+                        <img src="/logo.jpg" alt="Twocorex" className="h-8 w-auto object-contain" />
                     </div>
                     <div className="flex items-center gap-4">
                         <Link
