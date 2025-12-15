@@ -137,7 +137,13 @@ export default function IntegrationsPage() {
             const saved = sessionStorage.getItem('shadow_connected_accounts');
             if (saved) {
                 try {
-                    setConnectedAccounts(JSON.parse(saved));
+                    const parsed = JSON.parse(saved);
+                    // Revive dates
+                    const revived = parsed.map((acc: any) => ({
+                        ...acc,
+                        connectedAt: new Date(acc.connectedAt)
+                    }));
+                    setConnectedAccounts(revived);
                 } catch (e) {
                     console.error("Failed to parse saved accounts");
                 }
