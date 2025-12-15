@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Shield, Server, CheckCircle, AlertTriangle, Play, Lock, X, FileText, Eye } from 'lucide-react';
 
 export default function IntegrationsPage() {
