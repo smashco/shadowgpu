@@ -18,6 +18,7 @@ export default function IntegrationsPage() {
     const [secretKey, setSecretKey] = useState('');
     const [gcpJson, setGcpJson] = useState('');
     const [azureCreds, setAzureCreds] = useState({ tenantId: '', clientId: '', clientSecret: '', subId: '' });
+    const [sessionName, setSessionName] = useState('');
 
     const runScan = async () => {
         setLoading(true);
@@ -219,18 +220,28 @@ export default function IntegrationsPage() {
                             )}
 
                             {provider === 'Colab' && (
-                                <div className="space-y-3 mb-6">
+                                <div className="space-y-4 mb-6">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 uppercase">Session Name / Notebook Title</label>
+                                        <input
+                                            type="text"
+                                            value={sessionName}
+                                            onChange={(e) => setSessionName(e.target.value)}
+                                            placeholder="e.g., Llama-3-Training"
+                                            className="w-full border border-slate-300 rounded p-2 text-sm font-mono text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none"
+                                        />
+                                    </div>
                                     <div className="bg-slate-900 border border-slate-800 rounded-lg p-3">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-xs font-bold text-slate-400 uppercase">Colab Setup Script</span>
                                             <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Copy & Run in Notebook</span>
                                         </div>
                                         <code className="block text-[10px] font-mono text-emerald-300 break-all bg-black/50 p-2 rounded border border-slate-800">
-                                            !curl -s {typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent | python3
+                                            !curl -s "{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent?name={sessionName || 'Colab-Session'}" | python3
                                         </code>
                                     </div>
                                     <p className="text-xs text-slate-500 text-center">
-                                        Run this in a cell to instantly connect your runtime.
+                                        Run this command in a Colab cell to connect this specific session.
                                     </p>
                                 </div>
                             )}
@@ -307,6 +318,7 @@ export default function IntegrationsPage() {
                                 setSecretKey('');
                                 setGcpJson('');
                                 setAzureCreds({ tenantId: '', clientId: '', clientSecret: '', subId: '' });
+                                setSessionName('');
                             }}
                             className={`p-4 rounded-xl border transition-all flex items-center gap-3 ${provider === p ? 'bg-slate-900 border-emerald-500 ring-1 ring-emerald-500' : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'}`}
                         >

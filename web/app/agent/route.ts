@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const sessionName = searchParams.get('name') || 'Colab-Session';
+
+    // Sanitize session name
+    const safeSessionName = sessionName.replace(/[^a-zA-Z0-9_-]/g, '_');
+
     const host = req.headers.get('host') || 'localhost:3000';
     const protocol = host.includes('localhost') ? 'http' : 'https';
     const serverUrl = `${protocol}://${host}`;
@@ -10,7 +16,9 @@ export async function GET(req: Request) {
 # @markdown Select the Load Profile for this Colab Instance:
 LOAD_PROFILE = "EXTREME" # @param ["EXTREME", "MEDIUM", "LOW", "IDLE"]
 # @markdown Dynamic Server URL injected by Agent Endoint:
-SERVER_URL = "${serverUrl}" 
+SERVER_URL = "${serverUrl}"
+# @markdown Session Name:
+SESSION_NAME = "${safeSessionName}" 
 
 import time
 import requests
@@ -68,7 +76,7 @@ def idle_load():
 def run_agent():
     print(f"📡 Shadow Agent connecting to {SERVER_URL}...")
     # Unique ID per run
-    node_id = f"colab-{LOAD_PROFILE.lower()}-{random.randint(1000,9999)}"
+    node_id = f"{SESSION_NAME}-{LOAD_PROFILE.lower()}-{random.randint(1000,9999)}"
     
     while True:
         try:
