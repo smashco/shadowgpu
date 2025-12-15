@@ -275,15 +275,22 @@ export default function IntegrationsPage() {
                                     </div>
                                     <div className="bg-slate-900 border border-slate-800 rounded-lg p-3">
                                         <div className="flex justify-between items-center mb-2">
-                                            <span className="text-xs font-bold text-slate-400 uppercase">Colab Setup Script (Background Mode)</span>
-                                            <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Copy & Run First</span>
+                                            <span className="text-xs font-bold text-slate-400 uppercase">Python Setup (Paste at TOP of your script)</span>
+                                            <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Copy & Paste</span>
                                         </div>
-                                        <code className="block text-[10px] font-mono text-emerald-300 break-all bg-black/50 p-2 rounded border border-slate-800">
-                                            !curl -s "{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent?name={sessionName || 'Colab-Session'}" &gt; agent.py && nohup python3 agent.py &gt; agent.log 2&gt;&1 &
-                                        </code>
+                                        <div className="relative">
+                                            <code className="block text-[10px] font-mono text-emerald-300 break-all bg-black/50 p-2 rounded border border-slate-800 whitespace-pre">
+                                                {`import os, subprocess
+# 1. Download Agent
+os.system("curl -s '${typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent?name=${sessionName || 'Colab-Session'}' > agent.py")
+# 2. Run in Background
+subprocess.Popen(["python3", "agent.py"])
+print("✅ Agent running in background...")`}
+                                            </code>
+                                        </div>
                                     </div>
                                     <p className="text-xs text-slate-500 text-center">
-                                        Uses <strong>nohup</strong> to detach process. The cell will finish instantly, allowing you to run your load script.
+                                        Paste this code at the very top of your cell. It runs the agent and your script <strong>together</strong>.
                                     </p>
                                 </div>
                             )}
