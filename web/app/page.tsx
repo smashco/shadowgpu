@@ -9,8 +9,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="Twocorex" className="h-10 w-auto object-contain" />
+            <div className="flex items-baseline gap-0.5">
+              <span className="font-black text-2xl tracking-tighter text-white">TWOCORE</span>
+              <span className="font-black text-4xl text-emerald-500">X</span>
             </div>
           </div>
           <div className="flex items-center gap-6">
