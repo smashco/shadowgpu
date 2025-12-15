@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Shield, Server, CheckCircle, AlertTriangle, Play, Lock, X, FileText, Eye } from 'lucide-react';
+import { Shield, Server, CheckCircle, AlertTriangle, Play, Lock, X, FileText, Eye, ArrowLeft } from 'lucide-react';
 
 export default function IntegrationsPage() {
     const [provider, setProvider] = useState('AWS');
@@ -329,6 +330,11 @@ export default function IntegrationsPage() {
             )}
 
             <div className={`max-w-4xl mx-auto space-y-8 transition-all duration-300 ${showConsent ? 'blur-sm grayscale' : ''}`}>
+
+                {/* Back Button */}
+                <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-white transition-colors group">
+                    <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
+                </Link>
 
                 {/* Header */}
                 <div>
