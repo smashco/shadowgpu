@@ -275,15 +275,15 @@ export default function IntegrationsPage() {
                                     </div>
                                     <div className="bg-slate-900 border border-slate-800 rounded-lg p-3">
                                         <div className="flex justify-between items-center mb-2">
-                                            <span className="text-xs font-bold text-slate-400 uppercase">Colab Setup Script</span>
-                                            <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Copy & Run in Notebook</span>
+                                            <span className="text-xs font-bold text-slate-400 uppercase">Colab Setup Script (Background Mode)</span>
+                                            <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Copy & Run First</span>
                                         </div>
                                         <code className="block text-[10px] font-mono text-emerald-300 break-all bg-black/50 p-2 rounded border border-slate-800">
-                                            !curl -s "{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent?name={sessionName || 'Colab-Session'}" | python3
+                                            !curl -s "{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent?name={sessionName || 'Colab-Session'}" &gt; agent.py && python3 agent.py &
                                         </code>
                                     </div>
                                     <p className="text-xs text-slate-500 text-center">
-                                        Run this command in a Colab cell to connect this specific session.
+                                        Runs in background so you can run your load script in the next cell.
                                     </p>
                                 </div>
                             )}
