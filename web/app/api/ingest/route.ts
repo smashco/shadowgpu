@@ -69,12 +69,19 @@ export async function POST(req: Request) {
           action = "Stop Instance";
           savings = `$${currentPrice.toFixed(0)}/mo`;
 
-        } else if (util < 15) {
+        } else if (util < 5) {
           severity = "WARNING";
           title = `Zombie Node: ${item.node_id}`;
-          description = `Low utilization (${util.toFixed(1)}%) on expensive hardware.`;
+          description = `Utilization is negligible (${util.toFixed(1)}%). GPU is wasted here.`;
           action = "Migrate to CPU";
           savings = `$${(currentPrice - PRICE_CPU).toFixed(0)}/mo`;
+
+        } else if (util < 20) {
+          severity = "WARNING";
+          title = `Underutilized: ${item.node_id}`;
+          description = `Low load (${util.toFixed(1)}%) suggests inefficient use of dedicated hardware.`;
+          action = "Bin Pack / Share GPU"; // Suggest multi-tenancy
+          savings = `$${(currentPrice * 0.5).toFixed(0)}/mo`; // Assume 50% consolidation
 
         } else if (util < 40) {
           // If on A100 but < 40% usage, could fit on L4 or T4?
