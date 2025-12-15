@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Helper to get/set data
-const getDataPath = () => path.join(process.cwd(), 'data', 'cluster_state.json');
+const getDataPath = () => '/tmp/cluster_state.json';
 
 const readState = () => {
   const p = getDataPath();
@@ -16,8 +16,6 @@ const readState = () => {
 };
 
 const writeState = (state: any) => {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
   fs.writeFileSync(getDataPath(), JSON.stringify(state, null, 2));
 };
 
