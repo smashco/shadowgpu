@@ -29,17 +29,17 @@ export async function POST(req: Request) {
 
             // We need a zone to list instances. GCP requires zone-specific list or aggregated list.
             // Aggregated list is better.
-            const [aggList] = await instancesClient.aggregatedList({
+            const iterable = instancesClient.aggregatedListAsync({
                 project: projectId,
             });
 
             const results: any[] = [];
-            const instances = aggList.items || {};
 
-            for (const zone in instances) {
-                const zoneInstances = instances[zone].instances;
+            // Iterate over the async iterable
+            for await (const [zone, instancesObject] of iterable) {
+                const zoneInstances = instancesObject.instances;
                 if (zoneInstances && zoneInstances.length > 0) {
-                    zoneInstances.forEach(inst => {
+                    zoneInstances.forEach((inst: any) => {
                         if (inst.status === 'RUNNING') {
                             results.push({
                                 severity: "WARNING",
