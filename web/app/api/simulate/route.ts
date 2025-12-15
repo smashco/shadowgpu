@@ -83,9 +83,36 @@ export async function POST(req: Request) {
         }
 
         // Save to file (so the ingest API can read it later if needed, or just return it)
-        const dataDir = path.join(process.cwd(), 'data');
-        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-        fs.writeFileSync(path.join(dataDir, 'latest_report.json'), JSON.stringify(recommendations, null, 2));
+        // Save to SHARED state file so /api/ingest can read it
+        const stateFile = '/tmp/cluster_state.json';
+        let currentState: any = {};
+
+        try {
+            if (fs.existsSync(stateFile)) {
+                currentState = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
+            }
+        } catch (e) {
+            console.error("Failed to read state for sim:", e);
+        }
+
+        // Convert recommendations to "Node State" format
+        recommendations.forEach((rec, idx) => {
+            const nodeId = `sim-node-${idx}`;
+            currentState[nodeId] = {
+                node_id: nodeId,
+                // Simulate raw fields just in case
+                gpu_util: rec.severity === 'CRITICAL' ? 0 : rec.severity === 'WARNING' ? 30 : 90,
+                gpu_name: rec.target.cloud.gpu,
+                ...rec,
+                last_seen: Date.now()
+            };
+        });
+
+        try {
+            fs.writeFileSync(stateFile, JSON.stringify(currentState, null, 2));
+        } catch (e) {
+            console.error("Failed to write sim state:", e);
+        }
 
         return NextResponse.json({ success: true, count: recommendations.length });
 
