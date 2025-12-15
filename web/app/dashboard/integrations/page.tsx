@@ -8,6 +8,17 @@ export default function IntegrationsPage() {
     // Multi-Account State
     const [connectedAccounts, setConnectedAccounts] = useState<any[]>([]);
 
+    const [loading, setLoading] = useState(false);
+    const [results, setResults] = useState<any[]>([]);
+    const [error, setError] = useState('');
+    const [showConsent, setShowConsent] = useState(false);
+
+    // Credentials State
+    const [accessKey, setAccessKey] = useState('');
+    const [secretKey, setSecretKey] = useState('');
+    const [gcpJson, setGcpJson] = useState('');
+    const [azureCreds, setAzureCreds] = useState({ tenantId: '', clientId: '', clientSecret: '', subId: '' });
+
     const runScan = async () => {
         setLoading(true);
         setError('');
