@@ -279,11 +279,11 @@ export default function IntegrationsPage() {
                                             <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Copy & Run First</span>
                                         </div>
                                         <code className="block text-[10px] font-mono text-emerald-300 break-all bg-black/50 p-2 rounded border border-slate-800">
-                                            !curl -s "{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent?name={sessionName || 'Colab-Session'}" &gt; agent.py && python3 agent.py &
+                                            !curl -s "{typeof window !== 'undefined' ? window.location.origin : 'https://your-app.onrender.com'}/agent?name={sessionName || 'Colab-Session'}" &gt; agent.py && nohup python3 agent.py &gt; agent.log 2&gt;&1 &
                                         </code>
                                     </div>
                                     <p className="text-xs text-slate-500 text-center">
-                                        Runs in background so you can run your load script in the next cell.
+                                        Uses <strong>nohup</strong> to detach process. The cell will finish instantly, allowing you to run your load script.
                                     </p>
                                 </div>
                             )}
