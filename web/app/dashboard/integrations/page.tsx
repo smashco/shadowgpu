@@ -5,36 +5,52 @@ import { Shield, Server, CheckCircle, AlertTriangle, Play, Lock, X, FileText, Ey
 
 export default function IntegrationsPage() {
     const [provider, setProvider] = useState('AWS');
-    const [keys, setKeys] = useState<any>({ region: 'us-east-1' });
-    const [loading, setLoading] = useState(false);
-    const [results, setResults] = useState<any[]>([]);
-    const [error, setError] = useState('');
-    const [showConsent, setShowConsent] = useState(false);
-
-    // Credentials State
-    const [accessKey, setAccessKey] = useState('');
-    const [secretKey, setSecretKey] = useState('');
-    const [gcpJson, setGcpJson] = useState('');
-    const [azureCreds, setAzureCreds] = useState({ tenantId: '', clientId: '', clientSecret: '', subId: '' });
+    // Multi-Account State
+    const [connectedAccounts, setConnectedAccounts] = useState<any[]>([]);
 
     const runScan = async () => {
         setLoading(true);
         setError('');
         setResults([]);
 
+        if (connectedAccounts.length === 0) {
+            setError("No accounts connected. Please connect at least one provider.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            // Pass real keys if available
-            const payload = { ...keys, provider, accessKeyId: accessKey, secretAccessKey: secretKey };
+            let allResults: any[] = [];
 
-            const res = await fetch('/api/integrations/aws/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const json = await res.json();
+            // Parallel scan for all connected accounts
+            await Promise.all(connectedAccounts.map(async (account) => {
+                const payload = {
+                    ...account.credentials,
+                    provider: account.provider,
+                    region: account.credentials.region || 'us-east-1'
+                };
 
-            if (json.error) throw new Error(json.error);
-            setResults(json);
+                let endpoint = '/api/integrations/aws/scan';
+                if (account.provider === 'GCP') endpoint = '/api/integrations/gcp/scan';
+                if (account.provider === 'Azure') endpoint = '/api/integrations/azure/scan';
+
+                // For Colab, we don't scan via API, it's agent based. But we can simulate if needed.
+                if (account.provider === 'Colab') return;
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.error) throw new Error(`${account.provider}: ${json.error}`);
+
+                if (Array.isArray(json)) {
+                    allResults = [...allResults, ...json];
+                }
+            }));
+
+            setResults(allResults);
         } catch (e: any) {
             setError(e.message);
         } finally {
@@ -61,8 +77,34 @@ export default function IntegrationsPage() {
         setLoading(true);
         // Simulate OAuth token exchange
         await new Promise(r => setTimeout(r, 1500));
-        setKeys({ connected: true, provider });
+
+        const newAccount = {
+            id: Math.random().toString(36).substr(2, 9),
+            provider,
+            connectedAt: new Date(),
+            credentials: {
+                accessKeyId: accessKey,
+                secretAccessKey: secretKey,
+                serviceAccountJson: gcpJson,
+                ...azureCreds
+            }
+        };
+
+        setConnectedAccounts(prev => [...prev, newAccount]);
+
+        // Reset inputs
+        setAccessKey('');
+        setSecretKey('');
+        setGcpJson('');
+        setAzureCreds({ tenantId: '', clientId: '', clientSecret: '', subId: '' });
+
         setLoading(false);
+    };
+
+    // Remove account handler
+    const disconnectAccount = (id: string) => {
+        setConnectedAccounts(prev => prev.filter(a => a.id !== id));
+        setResults([]);
     };
 
     return (
@@ -275,59 +317,59 @@ export default function IntegrationsPage() {
                         </div>
                     </div>
 
-                    {/* Connection State: CONNECTED */}
-                    {keys.connected ? (
-                        <div className="mb-6 bg-slate-950/50 border border-emerald-500/20 rounded-lg p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
-                                <div>
-                                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                                        Account Connected via {provider === 'AWS' ? 'IAM Role' : 'OIDC'}
-                                        <CheckCircle className="w-3 h-3 text-emerald-500" />
-                                    </h3>
-                                    <p className="text-xs text-slate-500 font-mono mt-0.5">
-                                        ID: {provider === 'AWS' ? '1234-5678-9012' : provider === 'GCP' ? 'project-shadow-gpu' : 'subscription-8829'}
-                                    </p>
+                    {/* Connected Accounts List */}
+                    <div className="space-y-4 mb-8">
+                        {connectedAccounts.map(account => (
+                            <div key={account.id} className="bg-slate-950/50 border border-emerald-500/20 rounded-lg p-4 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                                            {account.provider} Account Connected
+                                            <CheckCircle className="w-3 h-3 text-emerald-500" />
+                                        </h3>
+                                        <p className="text-xs text-slate-500 font-mono mt-0.5">
+                                            Added: {account.connectedAt.toLocaleTimeString()}
+                                        </p>
+                                    </div>
                                 </div>
+                                <button
+                                    onClick={() => disconnectAccount(account.id)}
+                                    className="text-xs text-slate-500 hover:text-white underline hover:text-rose-400"
+                                >
+                                    Disconnect
+                                </button>
                             </div>
-                            <button
-                                onClick={() => { setKeys({}); setResults([]); }}
-                                className="text-xs text-slate-500 hover:text-white underline"
-                            >
-                                Disconnect
-                            </button>
+                        ))}
+                    </div>
+
+                    {/* Always Show Connect Button (for adding more) */}
+                    <div className="mb-6 py-8 text-center border-2 border-dashed border-slate-800 rounded-xl hover:bg-slate-800/20 transition-colors group cursor-pointer" onClick={initiateConnection}>
+                        <div className="mb-4 w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                            <Shield className="w-8 h-8 text-slate-500 group-hover:text-white transition-colors" />
                         </div>
-                    ) : (
-                        /* Connection State: DISCONNECTED (The "Git Connect" Style) */
-                        <div className="mb-6 py-8 text-center border-2 border-dashed border-slate-800 rounded-xl hover:bg-slate-800/20 transition-colors group">
-                            <div className="mb-4 w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                                <Shield className="w-8 h-8 text-slate-500 group-hover:text-white transition-colors" />
-                            </div>
-                            <h3 className="text-white font-semibold mb-1">Connect {provider} Account</h3>
-                            <p className="text-slate-500 text-sm mb-6 max-w-sm mx-auto">
-                                Grant read-only access to scan your resources. no long-term keys required.
-                            </p>
-                            <button
-                                onClick={initiateConnection}
-                                className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all scale-100 active:scale-95"
-                            >
-                                {loading && !showConsent ? 'Connecting...' : `Connect with ${provider}`}
-                            </button>
-                            <p className="text-[10px] text-slate-600 mt-4">
-                                Redirects to {provider} secure login
-                            </p>
-                        </div>
-                    )}
+                        <h3 className="text-white font-semibold mb-1">
+                            {connectedAccounts.length > 0 ? 'Connect Another Account' : `Connect ${provider} Account`}
+                        </h3>
+                        <p className="text-slate-500 text-sm mb-6 max-w-sm mx-auto">
+                            Add multiple environments to scan them all at once.
+                        </p>
+                        <button
+                            className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all scale-100 active:scale-95"
+                        >
+                            {loading && !showConsent ? 'Connecting...' : `Connect New ${provider}`}
+                        </button>
+                    </div>
 
                     <div className="flex items-center gap-4 border-t border-slate-800 pt-6">
                         <button
                             onClick={runScan}
-                            disabled={loading || !keys.connected}
-                            className={`bg-[#FF9900] hover:bg-[#FF9900]/90 text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all ${loading ? 'opacity-50 cursor-wait' : ''} ${!keys.connected ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-500' : ''}`}
-                            style={{ backgroundColor: !keys.connected ? '' : provider === 'GCP' ? '#4285F4' : provider === 'Azure' ? '#0078D4' : '#FF9900' }}
+                            disabled={loading || connectedAccounts.length === 0}
+                            className={`bg-[#FF9900] hover:bg-[#FF9900]/90 text-white font-bold px-6 py-2.5 rounded-lg flex items-center gap-2 transition-all ${loading ? 'opacity-50 cursor-wait' : ''} ${connectedAccounts.length === 0 ? 'opacity-50 cursor-not-allowed bg-slate-800 text-slate-500' : ''}`}
+                            style={{ backgroundColor: connectedAccounts.length === 0 ? '' : provider === 'GCP' ? '#4285F4' : provider === 'Azure' ? '#0078D4' : '#FF9900' }}
                         >
-                            {loading && keys.connected ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Play className="w-4 h-4" />}
-                            {loading && keys.connected ? 'Scanning...' : 'Start Scan'}
+                            {loading && connectedAccounts.length > 0 ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Play className="w-4 h-4" />}
+                            {loading && connectedAccounts.length > 0 ? 'Scanning All...' : 'Start Scan'}
                         </button>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                             <Lock className="w-3 h-3" /> Zero-Trust Access. Read-Only Scope.
